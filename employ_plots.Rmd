@@ -2,13 +2,16 @@
 title: "Plot Emplyment Data"
 author: "William Spagnola"
 date: "1/26/2021"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+
+library(DT)
+#datatable(iris, options = list(pageLength = 5))
 
 df_t <- read_csv('data/output/employ_USA.csv')
 ```
@@ -56,5 +59,28 @@ df_t %>%
 
 ```
 
+
+```{r}
+
+# Note: Why is total always the same?
+df_t %>% 
+  select(employ_sector, date, Total) %>% 
+  pivot_wider(id_cols =date, names_from = employ_sector, values_from = Total)
+#?pivot_wider
+
+```
+
+```{r}
+df_t %>% 
+  dplyr::filter(employ_sector %in% c('Total')) %>% 
+  dplyr::select(date, starts_with('age')) %>% 
+  pivot_longer(cols = -date, names_to = 'age_group', values_to = 'unemployment') %>% 
+  ggplot(aes(x = date, y = unemployment / 10e6, group = age_group, color = age_group))  + 
+  geom_line() +
+  geom_point() +
+  ylab('Number Unemployed (in Millions)') +
+  theme_bw()
+  
+```
 
 
