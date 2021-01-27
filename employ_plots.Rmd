@@ -1,0 +1,60 @@
+---
+title: "Plot Emplyment Data"
+author: "William Spagnola"
+date: "1/26/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+df_t <- read_csv('data/output/employ_USA.csv')
+```
+
+
+
+```{r}
+
+# Plot Unemployment across Phase 1
+df_t %>% 
+  filter(employ_sector == 'Unemploy') %>% 
+  ggplot(aes(x = date, y = Total / 10e6)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits = c(0, 20)) +
+  ylab('Unemployment (in Millions)') +
+  theme_bw()
+
+```
+
+```{r}
+# Employment Grouped by Sector
+df_t %>% 
+  filter(employ_sector %in% c("Nonresp", "Did not report", "Unemploy", "Total") == FALSE)  %>% 
+  ggplot(aes(x = date, y = Total /10e6, group = employ_sector, color = employ_sector)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(limits = c(0, 10)) +
+  ylab('Employment (in Millions)') +
+  theme_bw()
+```
+
+
+```{r}
+# Employment Faceted by Sector
+df_t %>% 
+  filter(employ_sector %in% c("Nonresp", "Did not report", "Unemploy", "Total") == FALSE)  %>% 
+  ggplot(aes(x = date, y = Total /10e3)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~employ_sector, scales = 'free_y') +
+  ylab('Employment (in Thousands)') +
+  theme_bw()
+
+
+```
+
+
+
