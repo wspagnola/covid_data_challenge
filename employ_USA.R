@@ -11,6 +11,8 @@ source("source.R")
 # Create empty list to store data.frames
 df_list <- list()
 
+#Note: will need to change to argument in seq function and vector in for loop after we add files from later Phases
+
 #Create sequence of dates for Phase 1; Note that each date is end date of survey administration period
 week_vec <- seq(lubridate::ymd("2020-05-04"), lubridate::ymd("2020-07-21"), by = "week")
 

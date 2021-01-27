@@ -27,3 +27,23 @@ name_vec2 <- c('Total', 'age18_24', 'age25_39', 'age40_54', 'age55_64', 'age_ove
                'inc100_150k', 'inc150_200k', 'inc_over200k', 'inc_nonresp',
                'spend_inc', 'spend_credit', 'spend_savings', 'spend_borrow',
                'spend_ui', 'spend_stimulus', 'spend_deferred', 'spend_nonresp')
+
+
+
+#Function for reading in State sheets
+read_state_func <- function(state, file = path, week = week_i) {
+  
+  
+  df <- suppressMessages(readxl::read_excel(path,
+                                            sheet = state,
+                                            skip = 5,
+                                            na = '-')) %>%
+    mutate(week = i,
+           date = week_i,
+           state = state)
+  
+  names(df)[2] <- 'Total'
+  df <- df %>%  filter(!is.na(df$Total))
+  
+  return(df)
+}  
