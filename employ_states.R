@@ -1,5 +1,6 @@
 
-
+# Program Function: Process Phase 1 State Data 
+#Note: State Data is Much messier 
 
 library(tidyverse)
 source("source.R")
@@ -36,7 +37,76 @@ for(i in seq_along(week_vec)){
 df_list %>% str
 
 
-df_list[[1]][, 1] %>% table
+
+#### Explore Measures  ####
+measure_list <- df_list %>%  
+                  lapply('[[', 1) %>% 
+                  lapply(unique)
+  
+
+df_list %>%  lapply(nrow)
+# Note: Week 2 Does not have Non-Response/Missing for Health & income
+
+
+#### Weeks 1, 3-6 ####
+
+df_list[c(1,3:6)] <-df_list[c(1,3:6)] %>%  
+  lapply(function(df) {df$measures <- rep(name_vec1, 50)
+  return(df)
+  })
+
+#### Week 2 Data ####
+
+# Find which States are missing rows 
+df2_nrow <- df_list[[2]] %>%  group_split(state) %>% vapply(nrow, FUN.VALUE = numeric(1))
+df2_nrow 
+
+# Need to Order States by Abbreviation rather than State Name
+state_abb_list <- df_list[[2]]$state %>%  unique %>%  sort
+
+#Create vector of states with only 38 rows: Nevada and Vermont
+state_miss_row <- state_abb_list[df2_nrow == 38]
+state_miss_row
+
+#Number of States with 39 rows
+nomiss_len <- 50 - length(state_miss_row) 
+
+#Create empty column
+df_list[[2]]$measures <- ''
+
+#Create indices for states missing and not-missing rows
+nomiss_idx <- which(df_list[[2]]$state %in% state_miss_row == FALSE)
+miss_idx <- which(df_list[[2]]$state %in% state_miss_row)
+  
+# Add measures for states without missing rows
+df_list[[2]][nomiss_idx, ]$measures <-rep(name_vec1, nomiss_len) 
+
+
+df_list[[2]][miss_idx,]$measures <- rep(name_vec1a, 2)
+
+
+#### Weeks 7 - 12  #####
+
+
+
+# These survey weeks have columns for household size and spendings
+df_list[7:12] <- df_list[7:12] %>%  
+  lapply(function(df) {df[, 1] <- rep(name_vec2, 50)
+  return(df)
+  
+  })
+
+#### Bind datasets from list into one master file ####
+
+# Note: Weeks 7 -12 have one less column 
+df_list %>%  vapply(ncol, FUN.VALUE = numeric(1))
+
+#df <- do.call( rbind, df_list)
+
+
+#### Clean data frame ####
+
+#names(df)[c(1,2,9, 10)] <- c('name', 'Total', 'Unemploy', 'Nonresp')
 
 
 

@@ -69,13 +69,11 @@ names(df)[c(1,2,9, 10)] <- c('name', 'Total', 'Unemploy', 'Nonresp')
 
 
 
-#### Invert Column Names and Group Column
+#### Transpose Column Names and Group Column ####
 
 # Not sure which format is better df, df_long, or df_t
-
 # Not sure if Total, Nonresp and Unemploy should be in same table for df_t
-
-# Not sure if Total row needed at all (Constant across weeks)
+# Not sure if total row needed at all (Constant across weeks)
 
 # Convert to Long
 df_long <- df %>%  
