@@ -91,76 +91,70 @@ df_list[[2]][miss_idx,]$measures <- rep(name_vec1a, 2)
 
 # These survey weeks have columns for household size and spendings
 df_list[7:12] <- df_list[7:12] %>%  
-  lapply(function(df) {df[, 1] <- rep(name_vec2, 50)
+  lapply(function(df) {df$measures <- rep(name_vec2, 50)
   return(df)
   
   })
 
-#### Bind datasets from list into one master file ####
-
-# Note: Weeks 7 -12 have one less column 
+# Check ncol
 df_list %>%  vapply(ncol, FUN.VALUE = numeric(1))
 
-#df <- do.call( rbind, df_list)
-
-
-#### Clean data frame ####
-
-#names(df)[c(1,2,9, 10)] <- c('name', 'Total', 'Unemploy', 'Nonresp')
-
-
-
-
-#### Recode Values in First column ####
-
-# Note: use factors instead
-
-# df_list[1:6] <- df_list[1:6] %>%  
-#   lapply(function(df) {df[, 1] <- name_vec1
-#   return(df)
-#   
-#   })
-
-# These survey weeks have columns for household size and spendings
-# df_list[7:12] <- df_list[7:12] %>%  
-#   lapply(function(df) {df[, 1] <- name_vec2
-#   return(df)
-#   
-#   })
-
-
 #### Bind datasets from list into one master file ####
 
-# df <- do.call( rbind, df_list)
+
+
+df <- do.call( rbind, df_list)
+
+
 
 
 #### Clean data frame ####
 
-# names(df)
-# 
-# names(df)[c(1, 9, 10)] <- c('name', 'Unemployed', 'Nonresp')
-# 
+names(df)[c(1,2,9, 10)] <- c('name', 'Total', 'Unemploy', 'Nonresp')
 
+# Check that name and measures align
+# FIX!!!!!
+# SHould  only be 39 rows
+df %>% 
+  distinct(name, measures) %>% 
+  View
 
-
-#### Invert Column Names and Group Column
+#### Tranpose Column Names and Group Column  ####
 
 # Not sure which format is better df, df_long, or df_t
-
 # Not sure if Total, Nonresp and Unemploy should be in same table for df_t
-
 # Not sure if Total row needed at all (Constant across weeks)
 
 # Convert to Long
-# df_long <- df %>%  
-#             pivot_longer(cols = - c(name, week, date), names_to = 'employ_sector' )  
+df_long <- df %>%
+            select(-name) %>% 
+            pivot_longer(cols = - c(measures, week, date, state), names_to = 'employ_sector' )
+df_long %>%  glimpse
+
+
 
 
 # Convert to wide with rows as employment sector by date  and columns subgroups
-# df_t <- df_long %>% 
-#             pivot_wider(id = c(employ_sector, week,date ))
-# 
+df_t <- df_long %>%
+            pivot_wider(id = c(employ_sector, week,date, state ), 
+                        names_from = measures,
+                        values_from =  value)
+
+df_t %>% glimpse
+
 # write.csv(df_t, 'data/output/employ_states.csv')
 # 
 # 
 
+
+#### Plots ####
+
+sub_states <- c('PA', 'NY', 'CA', 'FL')
+
+df_long %>% 
+  filter(state %in% sub_states, employ_sector == 'Unemploy', measures == 'age18_24') %>% 
+  ggplot(aes(x = date, y = value / 1e3)) +
+  geom_line() +
+  geom_point() +
+  ylab('NumberUnemployed (in Thousands)') +
+  facet_wrap(~state, ncol = 1)
