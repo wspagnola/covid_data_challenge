@@ -15,7 +15,9 @@ df_list <- list()
 #Note: will need to change to argument in seq function and vector in for loop after we add files from later Phases
 
 #Create sequence of dates for Phase 1; Note that each date is end date of survey administration period
-week_vec <- seq(lubridate::ymd("2020-05-04"), lubridate::ymd("2020-07-21"), by = "week")
+week_vec <- seq(lubridate::ymd("2020-05-04"), 
+                lubridate::ymd("2020-07-21"), 
+                by = "week")
 
 
 #Note: This takes awhile
@@ -24,11 +26,11 @@ for(i in seq_along(week_vec)){
   print(paste('Week:', i))
   
   
-  path <- paste0("data/input/employ2_week", i, '.xlsx')
+  path_i<- paste0("data/input/employ2_week", i, '.xlsx')
   week_i <- week_vec[i]
       
   # Create nested list 
-  week_list <- state.abb %>% lapply(read_state_func)
+  week_list <- state.abb %>% lapply(function(x) read_state_func(x, week_i, path_i))
   df_list[[i]] <- do.call(rbind, week_list)
   
 
@@ -58,11 +60,15 @@ df_list[c(1,3:6)] <-df_list[c(1,3:6)] %>%
 #### Week 2 Data ####
 
 # Find which States are missing rows 
-df2_nrow <- df_list[[2]] %>%  group_split(state) %>% vapply(nrow, FUN.VALUE = numeric(1))
+df2_nrow <- df_list[[2]] %>%  
+              group_split(state) %>% 
+              vapply(nrow, FUN.VALUE = numeric(1))
 df2_nrow 
 
 # Need to Order States by Abbreviation rather than State Name
-state_abb_list <- df_list[[2]]$state %>%  unique %>%  sort
+state_abb_list <- df_list[[2]]$state %>%  
+                              unique %>%  
+                              sort
 
 #Create vector of states with only 38 rows: Nevada and Vermont
 state_miss_row <- state_abb_list[df2_nrow == 38]
@@ -152,7 +158,9 @@ df_t %>% glimpse
 sub_states <- c('PA', 'NY', 'CA', 'FL')
 
 df_long %>% 
-  filter(state %in% sub_states, employ_sector == 'Unemploy', measures == 'age18_24') %>% 
+  filter(state %in% sub_states, 
+        employ_sector == 'Unemploy',
+              measures == 'age18_24') %>% 
   ggplot(aes(x = date, y = value / 1e3)) +
   geom_line() +
   geom_point() +

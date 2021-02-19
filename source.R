@@ -49,15 +49,15 @@ name_vec2 <- c('Total', 'age18_24', 'age25_39', 'age40_54', 'age55_64', 'age_ove
 
 
 #Function for reading in State sheets
-read_state_func <- function(state, file = path, week = week_i) {
+read_state_func <- function(state, week, path, skip = 5) {
   
   
   df <- suppressMessages(readxl::read_excel(path,
                                             sheet = state,
-                                            skip = 5,
+                                            skip = skip,
                                             na = '-')) %>%
     mutate(week = i,
-           date = week_i,
+           date = (!! week ),
            state = state)
   
   names(df)[2] <- 'Total'
